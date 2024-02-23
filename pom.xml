@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.googlecode.jcimd</groupId>
+	<groupId>biz.asplund</groupId>
 	<artifactId>jcimd</artifactId>
 	<version>0.5.5-SNAPSHOT</version>
 	<packaging>jar</packaging>
@@ -29,7 +29,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.7</version>
+			<version>4.13.2</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -39,14 +39,16 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.12.1</version>
 				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
+					<source>17</source>
+					<target>17</target>
 				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>3.3.0</version>
 				<executions>
 					<execution>
 						<goals>
@@ -58,6 +60,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>3.6.3</version>
 				<executions>
 					<execution>
 						<phase>install</phase>
@@ -67,49 +70,6 @@
 					</execution>
 				</executions>
 			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.8</version>
-				<configuration>
-					<downloadSources>true</downloadSources>
-					<additionalProjectnatures>
-						<projectnature>
-							org.maven.ide.eclipse.maven2Nature
-                        </projectnature>
-					</additionalProjectnatures>
-					<classpathContainers>
-						<classpathContainer>org.eclipse.jdt.launching.JRE_CONTAINER</classpathContainer>
-					</classpathContainers>
-				</configuration>
-			</plugin>
 		</plugins>
-		<extensions>
-			<extension>
-				<groupId>org.jvnet.wagon-svn</groupId>
-				<artifactId>wagon-svn</artifactId>
-				<version>1.9</version>
-			</extension>
-		</extensions>
 	</build>
-
-	<scm>
-		<connection>scm:svn:http://jcimd.googlecode.com/svn</connection>
-		<developerConnection>scm:svn:https://jcimd.googlecode.com/svn</developerConnection>
-		<url>http://code.google.com/p/jcimd/source/browse</url>
-	</scm>
-	<distributionManagement>
-		<repository>
-			<id>jcimd-googlecode-m2-repo</id>
-			<name>Maven Repository for jCIMD</name>
-			<url>svn:https://jcimd.googlecode.com/svn/maven2/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>jcimd-googlecode-m2-snapshots</id>
-			<name>Maven Repository for jCIMD (snapshots)</name>
-			<url>svn:https://jcimd.googlecode.com/svn/maven2/snapshots</url>
-			<uniqueVersion>false</uniqueVersion>
-		</snapshotRepository>
-	</distributionManagement>
-
 </project>
