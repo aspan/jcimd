@@ -23,8 +23,8 @@ import java.io.OutputStream;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -72,8 +72,8 @@ public class PacketSerializer {
 
 	private static final int DEFAULT_MAX_SIZE = 1024 * 4;
 
-	private final Log logger;
-	private static final Log clLogger = LogFactory.getLog(PacketSerializer.class);
+	private final Logger logger;
+	private static final Logger clLogger = LoggerFactory.getLogger(PacketSerializer.class);
 
 	private final boolean useChecksum; 
 	private int maxMessageSize = DEFAULT_MAX_SIZE;
@@ -104,10 +104,10 @@ public class PacketSerializer {
 	 */
 	public PacketSerializer(String name, boolean useChecksum) {
 		if (name != null) {
-			this.logger = LogFactory.getLog(
+			this.logger = LoggerFactory.getLogger(
 					this.getClass().getName() + "." + name);
 		} else {
-			this.logger = LogFactory.getLog(this.getClass());
+			this.logger = LoggerFactory.getLogger(this.getClass());
 		}
 		this.useChecksum = useChecksum;
 	}
@@ -143,10 +143,10 @@ public class PacketSerializer {
     doSerializePacket(packet, sequenceNumberGenerator, useChecksum, clLogger, outputStream);
   }
   
-	private static void doSerializePacket(Packet packet, PacketSequenceNumberGenerator sequenceNumberGenerator, boolean useChecksum, Log logger, OutputStream outputStream)
+	private static void doSerializePacket(Packet packet, PacketSequenceNumberGenerator sequenceNumberGenerator, boolean useChecksum, Logger logger, OutputStream outputStream)
 			throws IOException {
 		if (logger.isDebugEnabled()) {
-			logger.debug("Sending " + packet);
+			logger.debug("Sending {}", packet);
 		}
 		byte[] bytes = serializeToByteArray(packet, sequenceNumberGenerator, logger);
 		outputStream.write(bytes);
@@ -157,7 +157,7 @@ public class PacketSerializer {
 		outputStream.write(ETX);
 	}
 
-	private static byte[] serializeToByteArray(Packet packet, PacketSequenceNumberGenerator sequenceNumberGenerator, Log logger) throws IOException {
+	private static byte[] serializeToByteArray(Packet packet, PacketSequenceNumberGenerator sequenceNumberGenerator, Logger logger) throws IOException {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		outputStream.write(STX);
 		AsciiUtils.writeIntAsAsciiBytes(
@@ -171,7 +171,7 @@ public class PacketSerializer {
 			if (sequenceNumberGenerator != null) {
 				sequenceNumber = sequenceNumberGenerator.nextSequence();
 				if (logger.isTraceEnabled()) {
-					logger.trace("Generated " + sequenceNumber + " as sequence number");
+					logger.trace("Generated {} as sequence number", sequenceNumber);
 				}
 			} else {
 				String message = "No sequence number generator. " +
@@ -231,7 +231,7 @@ public class PacketSerializer {
 	  return doDeserializePacket(inputStream, DEFAULT_MAX_SIZE, useChecksum, clLogger);
 	}
 	
-	private static Packet doDeserializePacket(InputStream inputStream, int maxMessageSize, boolean useChecksum, Log logger) throws IOException {
+	private static Packet doDeserializePacket(InputStream inputStream, int maxMessageSize, boolean useChecksum, Logger logger) throws IOException {
 		ByteArrayOutputStream temp = new ByteArrayOutputStream();
 		int b;
 		while ((b = inputStream.read()) != END_OF_STREAM) {
@@ -269,7 +269,7 @@ public class PacketSerializer {
 		byte bytes[] = temp.toByteArray();
 
 		if (logger.isTraceEnabled()) {
-			logger.trace("Received " + bytes.length + " byte(s)");
+			logger.trace("Received {} byte(s)", bytes.length);
 		}
 
 		if (useChecksum) {
@@ -295,7 +295,7 @@ public class PacketSerializer {
 		int end = useChecksum ? bytes.length - 3 : bytes.length - 1;
 		Packet packet = deserializeFromByteArray(bytes, 1, end);
 		if (logger.isDebugEnabled()) {
-			logger.debug("Received " + packet);
+			logger.debug("Received {}", packet);
 		}
 		return packet;
 	}

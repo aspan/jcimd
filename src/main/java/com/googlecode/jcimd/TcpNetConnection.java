@@ -24,8 +24,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * {@link Connection} implementation that uses {@link Socket sockets}.
@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class TcpNetConnection implements Connection, Runnable {
 
-	private static final Log logger = LogFactory.getLog(TcpNetConnection.class);
+	private static final Logger logger = LoggerFactory.getLogger(TcpNetConnection.class);
 
 	private Map<String, AsyncReply> pendingReplies = new ConcurrentHashMap<String, AsyncReply>();
 
@@ -117,7 +117,7 @@ public class TcpNetConnection implements Connection, Runnable {
 			}
 		} catch (Exception e) {
 			if (logger.isTraceEnabled()) {
-				logger.trace("Ignoring error while closing connection: " + e.getMessage());
+				logger.trace("Ignoring error while closing connection: {}", e.getMessage());
 			}
 		}
 	}
@@ -133,9 +133,7 @@ public class TcpNetConnection implements Connection, Runnable {
 				break;
 			} catch (Exception e) {
 				if (logger.isDebugEnabled()) {
-					logger.debug("Read exception " +
-							 e.getClass().getName() + 
-						     ": " + e.getCause() + ": " + e.getMessage());
+					logger.debug("Read exception {}: {}: {}", e.getClass().getName(), e.getCause(), e.getMessage());
 				}
 				// since it's a socket exception, let's close without sending a logout operation
 				closeSocket();
@@ -153,7 +151,7 @@ public class TcpNetConnection implements Connection, Runnable {
 				this.socket.close();
 			} catch (IOException ioe) {
 				if (logger.isTraceEnabled()) {
-					logger.trace("Ignoring error while closing socket: " + ioe.getMessage());
+					logger.trace("Ignoring error while closing socket: {}", ioe.getMessage());
 				}
 			}
 		}

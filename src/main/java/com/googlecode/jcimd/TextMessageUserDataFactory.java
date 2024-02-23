@@ -23,8 +23,9 @@ import java.nio.charset.CharsetEncoder;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Random;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.googlecode.jcimd.charset.GsmCharsetProvider;
 
@@ -41,7 +42,7 @@ import com.googlecode.jcimd.charset.GsmCharsetProvider;
  */
 public class TextMessageUserDataFactory {
 
-	private static final Log logger = LogFactory.getLog(TextMessageUserDataFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(TextMessageUserDataFactory.class);
 	private static final Charset UTF16BE = Charset.forName("UTF-16BE");
 	private static final Charset GSM = loadGsmCharset();
 
@@ -59,10 +60,8 @@ public class TextMessageUserDataFactory {
 
 	static {
 		if (logger.isDebugEnabled()) {
-			logger.debug("GSM max. bytes per char: "
-					+ (int) Math.ceil(GSM.newEncoder().maxBytesPerChar()));
-			logger.debug("UTF-16BE max. bytes per char: "
-					+ (int) Math.ceil(UTF16BE.newEncoder().maxBytesPerChar()));
+			logger.debug("GSM max. bytes per char: {}", (int) Math.ceil(GSM.newEncoder().maxBytesPerChar()));
+			logger.debug("UTF-16BE max. bytes per char: {}", (int) Math.ceil(UTF16BE.newEncoder().maxBytesPerChar()));
 		}
 	}
 
@@ -132,7 +131,7 @@ public class TextMessageUserDataFactory {
 		UserData[] uds = new UserData[numberOfParts];
 		if (numberOfParts > 1) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("Splitting " + textMessageBytes + " bytes to " + numberOfParts + " parts");
+				logger.debug("Splitting {} bytes to {} parts", textMessageBytes, numberOfParts);
 			}
 			byte[] udh, udhTemplate = new byte[] {
 					0x05, 0x00, 0x03, nextRandom() /* generate unique id */,
@@ -159,8 +158,7 @@ public class TextMessageUserDataFactory {
 					}
 					String textMessagePartString = textMessagePart.toString();
 					if (logger.isDebugEnabled()) {
-						logger.debug("Part " + (part + 1) + " ["
-								+ textMessagePartString + "]");
+						logger.debug("Part {} [{}]", (part + 1), textMessagePartString);
 					}
 					udh = udhTemplate.clone();
 					udh[5] = (byte) ((part + 1) & 0xff);
@@ -179,8 +177,7 @@ public class TextMessageUserDataFactory {
 					}
 					String textMessagePartString = textMessagePart.toString();
 					if (logger.isDebugEnabled()) {
-						logger.debug("Part " + (part + 1) + " ["
-								+ textMessagePartString + "]");
+						logger.debug("Part {} [{}]", (part + 1), textMessagePartString);
 					}
 					udh = udhTemplate.clone();
 					udh[5] = (byte) ((part + 1) & 0xff);

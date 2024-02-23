@@ -23,8 +23,8 @@ import java.util.concurrent.Executors;
 
 import javax.net.SocketFactory;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Factory for {@link TcpNetConnection}.
@@ -33,7 +33,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class TcpNetConnectionFactory implements ConnectionFactory {
 
-	private static final Log logger = LogFactory.getLog(TcpNetConnectionFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(TcpNetConnectionFactory.class);
 
 	private final String host;
 	private final int port;
@@ -64,11 +64,11 @@ public class TcpNetConnectionFactory implements ConnectionFactory {
 	public Connection getConnection() throws Exception {
 		Socket socket = SocketFactory.getDefault().createSocket();
 		if (logger.isDebugEnabled()) {
-			logger.debug("Connecting to [" + host + ":" + port + "]...");
+			logger.debug("Connecting to [{}:{}]...", host, port);
 		}
 		socket.connect(new InetSocketAddress(this.host, this.port), 2000);
 		if (logger.isDebugEnabled()) {
-			logger.debug("Connected to [" + host + ":" + port + "]");
+			logger.debug("Connected to [{}:{}]", host, port);
 		}
 		if (this.timeout > 0) {
 			socket.setSoTimeout(this.timeout);

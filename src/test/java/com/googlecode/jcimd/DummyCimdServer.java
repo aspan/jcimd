@@ -27,16 +27,12 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import com.googlecode.jcimd.Packet;
-import com.googlecode.jcimd.PacketSerializer;
-import com.googlecode.jcimd.Parameter;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DummyCimdServer {
-	private final Log logger = LogFactory.getLog(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private int port;
 	private ServerSocket serverSocket;
@@ -53,7 +49,7 @@ public class DummyCimdServer {
 	public void start() throws IOException {
 		this.serverSocket = new ServerSocket(this.port);
 		if (this.logger.isInfoEnabled()) {
-			this.logger.info("Listening on port " + this.port);
+			this.logger.info("Listening on port {}", this.port);
 		}
 		Runnable listener = new Runnable() {
 			@Override
@@ -64,7 +60,7 @@ public class DummyCimdServer {
 							Socket socket = serverSocket.accept();
 							socket.setSoTimeout(2000);
 							if (logger.isInfoEnabled()) {
-								logger.info("Starting session with " + socket.getInetAddress().getHostAddress() + ":" + socket.hashCode());
+								logger.info("Starting session with {}:{}", socket.getInetAddress().getHostAddress(), socket.hashCode());
 							}
 							DummyCimdServer.Session session = new Session(socket);
 							//List<Session> sessions = ...;
@@ -117,7 +113,7 @@ public class DummyCimdServer {
 						request = serializer.deserialize(this.inputStream);
 					} catch (Exception e) {
 						if (logger.isErrorEnabled()) {
-							logger.error(e);
+							logger.error("", e);
 						}
 						break;
 					}
@@ -152,7 +148,7 @@ public class DummyCimdServer {
 				}
 				if (logger.isInfoEnabled()) {
 					// close this session
-					logger.info("Ending session with " + socket.getInetAddress().getHostAddress() + ":" + socket.hashCode());
+					logger.info("Ending session with {}:{}", socket.getInetAddress().getHostAddress(), socket.hashCode());
 				}
 			} catch (Exception e) {
 				throw new RuntimeException(e);

@@ -27,8 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * A {@link CharsetProvider} for the
@@ -43,7 +44,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class GsmCharsetProvider extends CharsetProvider {
 
-	private static final Log logger = LogFactory.getLog(GsmCharsetProvider.class);
+	private static final Logger logger = LoggerFactory.getLogger(GsmCharsetProvider.class);
 
 	static final char ESCAPE = 0x1B;
 	static char[] BYTE_TO_CHAR_SMALL_C_CEDILLA = new char[128];
@@ -76,7 +77,7 @@ public class GsmCharsetProvider extends CharsetProvider {
 		while ((line = reader.readLine()) != null) {
 			if (line.startsWith("#")) {
 				if (logger.isTraceEnabled()) {
-					logger.trace("Skipping line starting with '#': " + line);
+					logger.trace("Skipping line starting with '#': {}", line);
 				}
 				continue;
 			}
@@ -100,22 +101,21 @@ public class GsmCharsetProvider extends CharsetProvider {
 				// escape to extension table
 				BYTE_TO_CHAR_ESCAPED_DEFAULT[index] = ch;
 				if (logger.isTraceEnabled()) {
-					logger.trace(String.format("(escaped) %d == %s", index,
+					logger.trace("(escaped) {} == {}", index,
 							(ch != 10 && ch != 12 && ch != 13) ? ch :
-								(ch == 10 ? "\\n" : (ch == 12 ? "0x0C (form feed)" : "\\r"))));
+								(ch == 10 ? "\\n" : (ch == 12 ? "0x0C (form feed)" : "\\r")));
 				}
 			} else {
 				BYTE_TO_CHAR_SMALL_C_CEDILLA[index] = ch;
 				if (logger.isTraceEnabled()) {
-					logger.trace(String.format("%d == %s", index,
-							(ch != 10 && ch != 13) ? ch : (ch == 10 ? "\\n" : "\\r")));
+					logger.trace("{} == {}", index,
+							(ch != 10 && ch != 13) ? ch : (ch == 10 ? "\\n" : "\\r"));
 				}
 			}
 			count++;
 		}
 		if (count < 128 && logger.isWarnEnabled()) {
-			logger.warn("Character look-up initialized with only "
-					+ count + " value(s) (expecting 128 values)");
+			logger.warn("Character look-up initialized with only {} value(s) (expecting 128 values)", count);
 		}
 		return count;
 	}
