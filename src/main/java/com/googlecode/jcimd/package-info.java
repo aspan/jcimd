@@ -43,6 +43,5 @@
  *     cimdSession.close();
  * }
  * </pre>
- * </p>
  */
 package com.googlecode.jcimd;
