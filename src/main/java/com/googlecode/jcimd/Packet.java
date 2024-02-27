@@ -140,8 +140,7 @@ public class Packet {
 	 * message. Otherwise, <code>false</code> is returned.
 	 */
 	public boolean isPositiveResponse() {
-		return (operationCode >= 50 && operationCode < 90
-				&& !hasErrorParameter());
+		return isResponse() && !hasErrorParameter();
 	}
 
 	/**
@@ -152,8 +151,7 @@ public class Packet {
 	 * @return
 	 */
 	public boolean isNegativeResponse() {
-		return (operationCode >= 50 && operationCode < 90
-				&& hasErrorParameter());
+		return hasErrorParameter();
 	}
 
 	/**
