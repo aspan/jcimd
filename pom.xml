@@ -3,7 +3,7 @@
 
 	<groupId>biz.asplund</groupId>
 	<artifactId>jcimd</artifactId>
-	<version>1.2</version>
+	<version>1.3-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Java CIMD API</name>
