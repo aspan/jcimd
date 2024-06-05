@@ -1,18 +1,18 @@
 /*
  * Copyright 2010-2011 the original author or authors.
  *
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  */
 package com.googlecode.jcimd;
 
@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HexFormat;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -56,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * To protect against buffer overflow, this class uses a {@link #setMaxMessageSize(int)
  * maximum message size} which defaults to 4096 (1024 * 4) bytes.
- * 
+ *
  * @author Lorenzo Dee
  *
  * @see #setSequenceNumberGenerator(PacketSequenceNumberGenerator)
@@ -75,10 +76,10 @@ public class PacketSerializer {
 	private final Logger logger;
 	private static final Logger clLogger = LoggerFactory.getLogger(PacketSerializer.class);
 
-	private final boolean useChecksum; 
+	private final boolean useChecksum;
 	private int maxMessageSize = DEFAULT_MAX_SIZE;
 
-	private PacketSequenceNumberGenerator sequenceNumberGenerator; 
+	private PacketSequenceNumberGenerator sequenceNumberGenerator;
 
 	/**
 	 * Constructs a serializer that uses and expects a two-byte checksum.
@@ -137,18 +138,21 @@ public class PacketSerializer {
 	      throws IOException {
 	   doSerializePacket(packet, sequenceNumberGenerator, useChecksum, logger, outputStream);
 	 }
-	 
+
   public static void serializePacket(Packet packet, PacketSequenceNumberGenerator sequenceNumberGenerator, boolean useChecksum, OutputStream outputStream)
       throws IOException {
     doSerializePacket(packet, sequenceNumberGenerator, useChecksum, clLogger, outputStream);
   }
-  
+
 	private static void doSerializePacket(Packet packet, PacketSequenceNumberGenerator sequenceNumberGenerator, boolean useChecksum, Logger logger, OutputStream outputStream)
 			throws IOException {
 		if (logger.isDebugEnabled()) {
 			logger.debug("Sending {}", packet);
 		}
 		byte[] bytes = serializeToByteArray(packet, sequenceNumberGenerator, logger);
+		if (logger.isTraceEnabled()) {
+			logger.trace("Serialized packet object [{}] to bytes: [{}]", packet, HexFormat.of().formatHex(bytes));
+		}
 		outputStream.write(bytes);
 		if (useChecksum) {
 			int checkSum = calculateCheckSum(bytes);
@@ -226,11 +230,11 @@ public class PacketSerializer {
 	public Packet deserialize(InputStream inputStream) throws IOException {
 	  return doDeserializePacket(inputStream, getMaxMessageSize(), useChecksum, logger);
 	}
-	
+
 	public static Packet deserializePacket(InputStream inputStream, boolean useChecksum) throws IOException {
 	  return doDeserializePacket(inputStream, DEFAULT_MAX_SIZE, useChecksum, clLogger);
 	}
-	
+
 	private static Packet doDeserializePacket(InputStream inputStream, int maxMessageSize, boolean useChecksum, Logger logger) throws IOException {
 		ByteArrayOutputStream temp = new ByteArrayOutputStream();
 		int b;
@@ -269,7 +273,7 @@ public class PacketSerializer {
 		byte bytes[] = temp.toByteArray();
 
 		if (logger.isTraceEnabled()) {
-			logger.trace("Received {} byte(s)", bytes.length);
+			logger.trace("Received {} byte(s), data: [{}]", bytes.length, HexFormat.of().formatHex(bytes));
 		}
 
 		if (useChecksum) {
