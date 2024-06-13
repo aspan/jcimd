@@ -20,6 +20,9 @@ package com.googlecode.jcimd;
 import static org.junit.Assert.*;
 
 
+import java.nio.charset.Charset;
+import java.util.HexFormat;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -102,8 +105,9 @@ public class DefaultSessionTest {
 		session = new DefaultSession(connectionFactory);
 		try {
 			String destinationAddress = "+19098858888";
-			UserData userData = new StringUserData("Hi there");
-			
+			String message = "Hi there åäö €";
+			UserData userData = new BinaryUserData(message.getBytes("GSM-8BIT"));
+
 			submitMessage(destinationAddress, userData);
 
 			assertEquals("Two message expected", 2, server.getReceivedCommands().size());
@@ -113,7 +117,7 @@ public class DefaultSessionTest {
 			assertEquals("Destination address parameter expected",
 					destinationAddress, submitMessagePacket.getParameter(21).getValue());
 			assertEquals("User data parameter expected",
-					userData.getBody(), submitMessagePacket.getParameter(33).getValue());
+					message, new String(HexFormat.of().parseHex(submitMessagePacket.getParameter(34).getValue()), "GSM-8BIT"));
 		} catch (Exception e) {
 			fail("Unexpected exception: " + e.getMessage());
 		} finally {

@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.HexFormat;
 import java.util.LinkedList;
 import java.util.List;
@@ -322,11 +323,18 @@ public class PacketSerializer {
 		while (i < to) {
 			i = readToBufferUntil(bytes, i, to, 3, buffer, COLON);
 			int parameterType = Integer.valueOf(buffer.toString());
-			buffer.setLength(0);
-			i = readToBufferUntil(bytes, i, to, -1, buffer, TAB);
-			String parameterValue = buffer.toString();
-			buffer.setLength(0);
-			parameters.add(new Parameter(parameterType, parameterValue));
+			if (parameterType != Parameter.USER_DATA) {
+				buffer.setLength(0);
+				i = readToBufferUntil(bytes, i, to, -1, buffer, TAB);
+				String parameterValue = buffer.toString();
+				buffer.setLength(0);
+				parameters.add(new Parameter(parameterType, parameterValue));
+			} else {
+				var byteArrayOutputStream = new ByteArrayOutputStream();
+				i = readToBufferUntil(bytes, i, to, -1, byteArrayOutputStream , TAB);
+				parameters.add(new Parameter(parameterType, byteArrayOutputStream.toByteArray()));
+				buffer.setLength(0);
+			}
 		}
 
 		return new Packet(operationCode, sequenceNumber,
@@ -364,6 +372,55 @@ public class PacketSerializer {
 				&& (bytes[i] != NUL) && (bytes[i] != STX)
 				&& (bytes[i] != ETX) && (bytes[i] != TAB)) {
 			buffer.append((char) bytes[i]);
+			i++;
+			if ((maxOffset > 0) && ((i - from) > maxOffset)) {
+				throw new IOException(
+						"Expecting 0x" + Integer.toHexString(delimiter)
+						+ " within " + maxOffset + " byte(s), " +
+								"but got 0x" + Integer.toHexString(bytes[i - 1]));
+			}
+		}
+		if (bytes[i] != delimiter) {
+			throw new IOException(
+					"Expecting 0x" + Integer.toHexString(delimiter)
+					+ " but got 0x" + Integer.toHexString(bytes[i]));
+		} else {
+			i++;
+		}
+		return i;
+	}
+
+	/**
+	 * Reads bytes and appends to buffer until the delimiter is reached,
+	 * or the <em>to</em> is reached, or a reserved characters is reached.
+	 * The reserved characters 0x00 (NUL), 0x02 (STX), 0x03 (ETX), 0x09
+	 * (TAB) are not allowed in any parameter.
+	 *
+	 * @param bytes the array of bytes to read
+	 * @param from the initial index of the range to be read, inclusive
+	 * @param to the final index of the range to be read, exclusive.
+	 *     (This index may lie outside the array.)
+	 * @param maxOffset the maximum offset that can be read before reaching
+	 *     delimiter. If this offset is exceeded, and no delimiter was
+	 *     reached, an exception will be thrown.
+	 * @param buffer the buffer to append to
+	 * @param delimiter the delimiter to reach
+	 * @return the index (between <em>from</em> and <em>to</em>)
+	 *     when the delimiter was reached
+	 * @throws IOException if a reserved character was reached, and it is
+	 *     not the expected <em>delimiter</em>.
+	 */
+	private static int readToBufferUntil(
+			byte[] bytes, int from, int to, int maxOffset,
+			ByteArrayOutputStream buffer, byte delimiter)
+	throws IOException {
+		int i = from;
+		while ((i < to) && (bytes[i] != delimiter)
+				// The reserved characters 0x00 (NUL), 0x02 (STX),
+				// 0x03 (ETX), 0x09 (TAB) are not allowed in any parameter
+				&& (bytes[i] != NUL) && (bytes[i] != STX)
+				&& (bytes[i] != ETX) && (bytes[i] != TAB)) {
+			buffer.write(bytes[i]);
 			i++;
 			if ((maxOffset > 0) && ((i - from) > maxOffset)) {
 				throw new IOException(
